@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>H₂ — Водород | Интерактивная презентация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --neon-red: #ff0a3c;
+            --neon-red-glow: rgba(255, 10, 60, 0.6);
+            --neon-red-soft: rgba(255, 10, 60, 0.15);
+            --text-main: #e8e8e8;
+            --text-dim: #6a6a7a;
+            --accent-cyan: #00f0ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* === БЛЮР ПРЕЗЕНТАЦИИ ПРИ ВИКТОРИНЕ === */
+        body.quiz-active #hero,
+        body.quiz-active #presentation {
+            filter: blur(20px) brightness(0.5);
+            pointer-events: none;
+            user-select: none;
+            transition: filter 0.5s ease;
+        }
+
+        body.quiz-active #presentation::before {
+            content: '🔒 ВИКТОРИНА АКТИВНА — ПОДСМАТРИВАТЬ НЕЛЬЗЯ!';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 15, 0.95);
+            color: var(--neon-red);
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(0.7rem, 2.5vw, 1.2rem);
+            padding: 1.5rem 2rem;
+            border: 2px solid var(--neon-red);
+            box-shadow: 0 0 30px var(--neon-red-glow);
+            z-index: 500;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #hero, #presentation {
+            transition: filter 0.5s ease;
+        }
+
+        /* Геометрический фон */
+        .geo-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hexagon {
+            position: absolute;
+            border: 1px solid var(--neon-red-soft);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hexagon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--neon-red-soft) 0%, transparent 50%);
+        }
+
+        .hex-1 { width: 200px; height: 200px; top: 10%; left: 5%; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation-delay: 0s; }
+        .hex-2 { width: 150px; height: 150px; top: 60%; right: 10%; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation-delay: -5s; }
+        .hex-3 { width: 100px; height: 100px; bottom: 20%; left: 15%; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation-delay: -10s; }
+        .hex-4 { width: 80px; height: 80px; top: 30%; right: 25%; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation-delay: -3s; }
+        
+        .triangle {
+            position: absolute;
+            border: 1px solid var(--neon-red-soft);
+            opacity: 0.2;
+            animation: rotate 30s linear infinite;
+        }
+        
+        .tri-1 { width: 120px; height: 120px; top: 5%; right: 5%; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .tri-2 { width: 60px; height: 60px; bottom: 30%; right: 30%; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); animation-direction: reverse; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Навигация */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--neon-red-soft);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-red);
+            text-shadow: 0 0 20px var(--neon-red-glow);
+            letter-spacing: 3px;
+        }
+
+        .logo span {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-left: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red-glow);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-red);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Контент */
+        main {
+            position: relative;
+            z-index: 1;
+            padding-top: 80px;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Герой секция */
+        #hero {
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 900;
+            color: var(--neon-red);
+            text-shadow: 
+                0 0 20px var(--neon-red-glow),
+                0 0 40px var(--neon-red-glow),
+                0 0 80px var(--neon-red-glow);
+            animation: pulse-glow 2s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        .hero-h1 sub {
+            font-size: 0.4em;
+            vertical-align: sub;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 20px var(--neon-red-glow), 0 0 40px var(--neon-red-glow), 0 0 80px var(--neon-red-glow); }
+            50% { text-shadow: 0 0 30px var(--neon-red-glow), 0 0 60px var(--neon-red-glow), 0 0 100px var(--neon-red-glow); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.8rem;
+            color: var(--text-dim);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--neon-red-soft);
+            padding: 2rem;
+            min-width: 180px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 30px var(--neon-red-soft);
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neon-red);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        /* Секция презентации */
+        #presentation {
+            padding: 6rem 2rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            color: var(--neon-red);
+            text-align: center;
+            margin-bottom: 4rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px var(--neon-red-glow);
+        }
+
+        .slides-container {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--neon-red-soft);
+            border-radius: 4px;
+            padding: 3rem;
+            min-height: 500px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: var(--neon-red);
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+        }
+
+        .slide h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--neon-red-soft);
+        }
+
+        .slide-content {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+
+        .slide-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .slide-content strong {
+            color: var(--neon-red);
+        }
+
+        .slide-content .formula {
+            font-family: 'Orbitron', monospace;
+            background: rgba(255, 10, 60, 0.1);
+            padding: 1rem 2rem;
+            border-left: 3px solid var(--neon-red);
+            margin: 1.5rem 0;
+            font-size: 1.4rem;
+        }
+
+        .slide-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .slide-content li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .slide-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--neon-red);
+        }
+
+        .fun-fact {
+            background: linear-gradient(135deg, rgba(255, 10, 60, 0.1) 0%, rgba(0, 240, 255, 0.05) 100%);
+            border: 1px solid var(--accent-cyan);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+
+        .fun-fact-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Навигация слайдов */
+        .slides-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .slide-btn {
+            background: transparent;
+            border: 2px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .slide-btn:hover {
+            background: var(--neon-red);
+            color: var(--bg-dark);
+            box-shadow: 0 0 30px var(--neon-red-glow);
+        }
+
+        .slide-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-family: 'Orbitron', monospace;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .slide-counter span {
+            color: var(--neon-red);
+        }
+
+        /* Индикатор прогресса */
+        .progress-bar {
+            width: 100%;
+            max-width: 1200px;
+            height: 4px;
+            background: var(--bg-card);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red-glow);
+            transition: width 0.3s ease;
+        }
+
+        /* Секция викторины */
+        #quiz {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, rgba(255, 10, 60, 0.03) 100%);
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .quiz-card {
+            background: var(--bg-card);
+            border: 1px solid var(--neon-red-soft);
+            padding: 3rem;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .quiz-intro {
+            text-align: center;
+        }
+
+        .quiz-intro h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--neon-red);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-intro p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .start-btn {
+            background: var(--neon-red);
+            border: none;
+            color: var(--bg-dark);
+            padding: 1.2rem 3rem;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+
+        .start-btn:hover {
+            box-shadow: 0 0 40px var(--neon-red-glow);
+            transform: scale(1.05);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .question-number {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-red);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .score-display {
+            font-family: 'Orbitron', monospace;
+            color: var(--accent-cyan);
+            font-size: 1rem;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .answer-btn {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-main);
+            padding: 1.2rem 1.5rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: var(--neon-red-soft);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .answer-btn:hover {
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .answer-btn:hover::before {
+            width: 100%;
+        }
+
+        .answer-btn.correct {
+            border-color: #00ff6a;
+            background: rgba(0, 255, 106, 0.1);
+            color: #00ff6a;
+        }
+
+        .answer-btn.wrong {
+            border-color: #ff0a3c;
+            background: rgba(255, 10, 60, 0.1);
+            color: #ff0a3c;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: rgba(0, 255, 106, 0.1);
+            border: 1px solid #00ff6a;
+            color: #00ff6a;
+        }
+
+        .feedback.wrong {
+            background: rgba(255, 10, 60, 0.1);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .next-btn {
+            background: transparent;
+            border: 2px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .next-btn.show {
+            display: inline-block;
+        }
+
+        .next-btn:hover {
+            background: var(--neon-red);
+            color: var(--bg-dark);
+        }
+
+        /* Результаты */
+        .results {
+            text-align: center;
+        }
+
+        .results h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--neon-red);
+            margin-bottom: 2rem;
+        }
+
+        .final-score {
+            font-family: 'Orbitron', monospace;
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--neon-red);
+            text-shadow: 0 0 30px var(--neon-red-glow);
+            margin-bottom: 1rem;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--neon-red-soft);
+        }
+
+        .restart-btn {
+            background: var(--neon-red);
+            border: none;
+            color: var(--bg-dark);
+            padding: 1rem 2.5rem;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            box-shadow: 0 0 30px var(--neon-red-glow);
+        }
+
+        /* Футер */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--neon-red-soft);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        footer .made-with {
+            margin-top: 0.5rem;
+            color: var(--neon-red);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+
+        /* Адаптив */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+
+            .hero-stats {
+                gap: 1rem;
+            }
+
+            .stat-box {
+                min-width: 140px;
+                padding: 1.5rem;
+            }
+
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide h2 {
+                font-size: 1.5rem;
+            }
+
+            .quiz-card {
+                padding: 2rem;
+            }
+            
+            section {
+                padding: 3rem 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .slides-nav {
+                gap: 0.8rem;
+            }
+            
+            .slide-btn {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            main {
+                padding-top: 100px;
+            }
+            
+            .hero-h1 {
+                font-size: 5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                letter-spacing: 4px;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+            
+            .stat-box {
+                min-width: auto;
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .slide {
+                padding: 1.5rem;
+                min-height: auto;
+            }
+            
+            .slide-content {
+                font-size: 1rem;
+            }
+            
+            .slide-content .formula {
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
+            }
+            
+            .answer-btn {
+                padding: 1rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Touch-friendly на мобилках */
+        @media (hover: none) and (pointer: coarse) {
+            .answer-btn {
+                min-height: 50px;
+            }
+            
+            .slide-btn {
+                min-height: 48px;
+            }
+            
+            .start-btn, .restart-btn, .next-btn {
+                min-height: 50px;
+            }
+        }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-red);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-red-glow);
+        }
+    </style>
+</head>
+<body>
+    <!-- Геометрический фон -->
+    <div class="geo-bg">
+        <div class="hexagon hex-1"></div>
+        <div class="hexagon hex-2"></div>
+        <div class="hexagon hex-3"></div>
+        <div class="hexagon hex-4"></div>
+        <div class="triangle tri-1"></div>
+        <div class="triangle tri-2"></div>
+    </div>
+
+    <!-- Навигация -->
+    <nav>
+        <div class="logo">H<sub>2</sub><span>HYDROGEN</span></div>
+        <div class="nav-links">
+            <a href="#hero">Главная</a>
+            <a href="#presentation">Презентация</a>
+            <a href="#quiz">Викторина</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Герой секция -->
+        <section id="hero">
+            <h1 class="hero-h1">H<sub>2</sub></h1>
+            <p class="hero-subtitle">Водород — первый элемент</p>
+            <div class="hero-stats">
+                <div class="stat-box">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Атомный номер</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1.008</div>
+                    <div class="stat-label">Атомная масса</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">-259°C</div>
+                    <div class="stat-label">Точка кипения</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">75%</div>
+                    <div class="stat-label">Масса Вселенной</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция презентации -->
+        <section id="presentation">
+            <h2 class="section-title">// ПРЕЗЕНТАЦИЯ</h2>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="slides-container">
+                <!-- Слайд 1 -->
+                <div class="slide active" data-slide="1">
+                    <div class="slide-number">СЛАЙД 01 / 15</div>
+                    <h2>Что такое водород?</h2>
+                    <div class="slide-content">
+                        <p><strong>Водород (H)</strong> — первый элемент периодической системы Менделеева. Это самый лёгкий и самый распространённый элемент во Вселенной.</p>
+                        <p>В обычных условиях водород — бесцветный газ без запаха и вкуса. Молекула водорода состоит из двух атомов: <strong>H₂</strong>.</p>
+                        <div class="formula">H + H → H₂</div>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🔥 ФАКТ</div>
+                            Название «водород» происходит от латинского «hydrogenium» — «рождающий воду». Потому что при горении водорода образуется вода!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 2 -->
+                <div class="slide" data-slide="2">
+                    <div class="slide-number">СЛАЙД 02 / 15</div>
+                    <h2>Строение атома водорода</h2>
+                    <div class="slide-content">
+                        <p>Атом водорода — простейший из всех атомов. Он состоит из:</p>
+                        <ul>
+                            <li><strong>1 протона</strong> в ядре (положительный заряд)</li>
+                            <li><strong>1 электрона</strong> на орбитали (отрицательный заряд)</li>
+                            <li><strong>Нейтронов нет</strong> (в обычном водороде — протии)</li>
+                        </ul>
+                        <p>Это единственный атом, строение которого можно точно рассчитать по законам квантовой механики!</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">⚛️ ИЗОТОПЫ</div>
+                            У водорода есть изотопы: протий (обычный H), дейтерий (D — 1 нейтрон) и тритий (T — 2 нейтрона). Тритий радиоактивен!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 3 -->
+                <div class="slide" data-slide="3">
+                    <div class="slide-number">СЛАЙД 03 / 15</div>
+                    <h2>Физические свойства</h2>
+                    <div class="slide-content">
+                        <p>Водород обладает уникальными физическими свойствами:</p>
+                        <ul>
+                            <li><strong>Самый лёгкий газ</strong> — в 14,5 раз легче воздуха</li>
+                            <li><strong>Температура кипения:</strong> -252,87°C</li>
+                            <li><strong>Температура плавления:</strong> -259,14°C</li>
+                            <li><strong>Высокая теплоёмкость</strong> — лучше всех газов проводит тепло</li>
+                            <li><strong>Высокая диффузия</strong> — проникает даже сквозь металлы</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🎈 ИНТЕРЕСНО</div>
+                            Из-за своей лёгкости водород поднимается вверх. Раньше им наполняли дирижабли, пока не случилась катастрофа «Гинденбурга» в 1937 году.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 4 -->
+                <div class="slide" data-slide="4">
+                    <div class="slide-number">СЛАЙД 04 / 15</div>
+                    <h2>Химические свойства</h2>
+                    <div class="slide-content">
+                        <p>Водород — активный восстановитель. Основные реакции:</p>
+                        <div class="formula">2H₂ + O₂ → 2H₂O (горение)</div>
+                        <div class="formula">H₂ + Cl₂ → 2HCl (со светом — взрыв!)</div>
+                        <div class="formula">H₂ + CuO → Cu + H₂O (восстановление металлов)</div>
+                        <p>При обычных условиях водород малоактивен, но при нагревании или с катализаторами реагирует с большинством веществ.</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">💥 ОСТОРОЖНО</div>
+                            Смесь водорода с воздухом (от 4% до 75% H₂) — взрывоопасна! Такую смесь называют «гремучим газом».
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 5 -->
+                <div class="slide" data-slide="5">
+                    <div class="slide-number">СЛАЙД 05 / 15</div>
+                    <h2>Получение в лаборатории</h2>
+                    <div class="slide-content">
+                        <p>Классический способ получения водорода — реакция металла с кислотой:</p>
+                        <div class="formula">Zn + H₂SO₄ → ZnSO₄ + H₂↑</div>
+                        <div class="formula">2Al + 6HCl → 2AlCl₃ + 3H₂↑</div>
+                        <p><strong>Как это работает:</strong> берём цинк или алюминий, заливаем разбавленной серной или соляной кислотой. Металл окисляется, а водород выделяется в виде пузырьков!</p>
+                        <p>Собирают водород методом вытеснения воды — переворачивают пробирку над водой, газ поднимается и заполняет её.</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🧪 ЛАЙФХАК</div>
+                            Водород настолько лёгкий, что собранная пробирка с ним «звенит» характерным писком, если поднести к пламени (это мини-взрыв гремучего газа).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 6 -->
+                <div class="slide" data-slide="6">
+                    <div class="slide-number">СЛАЙД 06 / 15</div>
+                    <h2>Промышленное получение</h2>
+                    <div class="slide-content">
+                        <p>В промышленности водород получают другими способами:</p>
+                        <ul>
+                            <li><strong>Конверсия метана:</strong> CH₄ + H₂O → CO + 3H₂ (основной метод)</li>
+                            <li><strong>Электролиз воды:</strong> 2H₂O → 2H₂ + O₂ (чистый водород)</li>
+                            <li><strong>Газификация угля:</strong> C + H₂O → CO + H₂</li>
+                        </ul>
+                        <p>Ежегодно в мире производят около <strong>70 миллионов тонн</strong> водорода!</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🌍 ЭКОЛОГИЯ</div>
+                            «Зелёный» водород получают электролизом от солнечных панелей или ветряков. Это топливо будущего без выбросов CO₂!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 7 -->
+                <div class="slide" data-slide="7">
+                    <div class="slide-number">СЛАЙД 07 / 15</div>
+                    <h2>Водород в природе</h2>
+                    <div class="slide-content">
+                        <p>Водород — самый распространённый элемент во Вселенной:</p>
+                        <ul>
+                            <li><strong>~75%</strong> массы всей видимой материи</li>
+                            <li><strong>Звёзды</strong> состоят в основном из водорода (включая Солнце)</li>
+                            <li><strong>Газовые гиганты</strong> (Юпитер, Сатурн) — тоже водород</li>
+                        </ul>
+                        <p>На Земле свободный водород почти не встречается — он слишком лёгкий и улетает в космос. Зато в связанном виде (вода, органика) его огромное количество!</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">☀️ СОЛНЦЕ</div>
+                            Каждую секунду Солнце превращает 620 млн тонн водорода в гелий. Это термоядерный синтез — источник энергии звёзд.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 8 -->
+                <div class="slide" data-slide="8">
+                    <div class="slide-number">СЛАЙД 08 / 15</div>
+                    <h2>Применение: химическая промышленность</h2>
+                    <div class="slide-content">
+                        <p>Большая часть водорода используется в химии:</p>
+                        <ul>
+                            <li><strong>Синтез аммиака:</strong> N₂ + 3H₂ → 2NH₃ (удобрения!)</li>
+                            <li><strong>Получение метанола:</strong> CO + 2H₂ → CH₃OH</li>
+                            <li><strong>Гидрирование жиров:</strong> делает маргарин из растительного масла</li>
+                            <li><strong>Очистка нефти:</strong> удаление серы из топлива</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🌾 ВАЖНО</div>
+                            Без аммиака (а значит, без водорода) невозможно производить удобрения. Половина еды на планете выращена благодаря этому процессу!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 9 -->
+                <div class="slide" data-slide="9">
+                    <div class="slide-number">СЛАЙД 09 / 15</div>
+                    <h2>Применение: энергетика</h2>
+                    <div class="slide-content">
+                        <p>Водород — топливо будущего:</p>
+                        <ul>
+                            <li><strong>Водородные автомобили:</strong> Toyota Mirai, Hyundai Nexo</li>
+                            <li><strong>Топливные элементы:</strong> электричество из H₂ + O₂ = только вода на выходе</li>
+                            <li><strong>Ракетное топливо:</strong> жидкий водород + кислород (самое эффективное)</li>
+                            <li><strong>Хранение энергии:</strong> избыток электричества → водород → обратно в ток</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🚀 КОСМОС</div>
+                            Space Shuttle использовал 2 млн литров жидкого водорода за один запуск. Главный двигатель работал на паре H₂/O₂!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 10 -->
+                <div class="slide" data-slide="10">
+                    <div class="slide-number">СЛАЙД 10 / 15</div>
+                    <h2>Применение: металлургия</h2>
+                    <div class="slide-content">
+                        <p>В металлургии водород незаменим:</p>
+                        <ul>
+                            <li><strong>Восстановление металлов</strong> из оксидов (вместо угля — экологичнее)</li>
+                            <li><strong>Сварка и резка</strong> — водородно-кислородное пламя (до 2800°C)</li>
+                            <li><strong>Защитная атмосфера</strong> при обработке металлов</li>
+                            <li><strong>«Зелёная» сталь:</strong> H₂ вместо кокса = без выбросов CO₂</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🏭 БУДУЩЕЕ</div>
+                            Швеция уже производит сталь на водороде (проект HYBRIT). Это может снизить мировые выбросы CO₂ на 7%!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 11 -->
+                <div class="slide" data-slide="11">
+                    <div class="slide-number">СЛАЙД 11 / 15</div>
+                    <h2>Водородная связь</h2>
+                    <div class="slide-content">
+                        <p>Водород образует особый тип связи — <strong>водородную связь</strong>:</p>
+                        <p>Это слабое притяжение между атомом H (связанным с O, N или F) и другим электроотрицательным атомом.</p>
+                        <p><strong>Почему это важно:</strong></p>
+                        <ul>
+                            <li>Вода жидкая при комнатной температуре (без Н-связей кипела бы при -80°C!)</li>
+                            <li>Лёд легче воды (аномалия, спасающая жизнь в водоёмах)</li>
+                            <li>ДНК держит свою структуру благодаря водородным связям</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🧬 ЖИЗНЬ</div>
+                            Без водородных связей не было бы жизни: ни воды в жидком виде, ни стабильной ДНК, ни белков нужной формы.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 12 -->
+                <div class="slide" data-slide="12">
+                    <div class="slide-number">СЛАЙД 12 / 15</div>
+                    <h2>Опасности водорода</h2>
+                    <div class="slide-content">
+                        <p>Водород требует осторожного обращения:</p>
+                        <ul>
+                            <li><strong>Взрывоопасность:</strong> смесь 4-75% с воздухом взрывается от искры</li>
+                            <li><strong>Невидимое пламя:</strong> горящий водород почти не видно днём!</li>
+                            <li><strong>Утечки:</strong> проникает сквозь мельчайшие щели</li>
+                            <li><strong>Охрупчивание металлов:</strong> водород делает сталь хрупкой</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">⚠️ ИСТОРИЯ</div>
+                            Катастрофа дирижабля «Гинденбург» (1937) унесла 36 жизней. После этого водород заменили на безопасный гелий.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 13 -->
+                <div class="slide" data-slide="13">
+                    <div class="slide-number">СЛАЙД 13 / 15</div>
+                    <h2>Интересные факты</h2>
+                    <div class="slide-content">
+                        <ul>
+                            <li><strong>Металлический водород:</strong> при давлении ~5 млн атмосфер водород становится металлом и сверхпроводником!</li>
+                            <li><strong>Юпитер:</strong> внутри планеты — океан жидкого металлического водорода</li>
+                            <li><strong>Водородная бомба:</strong> мощнейшее оружие основано на синтезе H → He</li>
+                            <li><strong>Антиводород:</strong> получен в CERN — позитрон + антипротон</li>
+                            <li><strong>Водород в теле:</strong> 10% массы человека — это водород (в воде и органике)</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🔬 НАУКА</div>
+                            В 2019 году учёные сфотографировали атом водорода с помощью квантового микроскопа. Орбиталь — реальна!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 14 -->
+                <div class="slide" data-slide="14">
+                    <div class="slide-number">СЛАЙД 14 / 15</div>
+                    <h2>Водород и экология</h2>
+                    <div class="slide-content">
+                        <p>Водород — ключ к «зелёной» экономике:</p>
+                        <ul>
+                            <li><strong>Нулевые выбросы:</strong> при сгорании только H₂O</li>
+                            <li><strong>Возобновляемый:</strong> можно получать из воды</li>
+                            <li><strong>Хранение энергии:</strong> сезонное накопление от ВИЭ</li>
+                            <li><strong>Декарбонизация:</strong> замена угля в промышленности</li>
+                        </ul>
+                        <p>К 2050 году водород может обеспечивать до <strong>18%</strong> мировой энергии!</p>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">🌱 ТРЕНД</div>
+                            ЕС, Япония, Китай и другие страны вкладывают миллиарды в «водородную экономику». Это одна из главных технологий XXI века.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Слайд 15 -->
+                <div class="slide" data-slide="15">
+                    <div class="slide-number">СЛАЙД 15 / 15</div>
+                    <h2>Итоги</h2>
+                    <div class="slide-content">
+                        <p><strong>Водород (H₂)</strong> — уникальный элемент:</p>
+                        <ul>
+                            <li>Простейший атом: 1 протон + 1 электрон</li>
+                            <li>Самый лёгкий и распространённый во Вселенной</li>
+                            <li>Активный восстановитель, горит с образованием воды</li>
+                            <li>Получают из кислот + металл или электролизом воды</li>
+                            <li>Применяют в химии, энергетике, металлургии</li>
+                            <li>Топливо будущего с нулевыми выбросами</li>
+                        </ul>
+                        <div class="fun-fact">
+                            <div class="fun-fact-title">✨ ГЛАВНОЕ</div>
+                            Водород — начало всего: первый элемент таблицы Менделеева, основа звёзд, источник воды и, возможно, энергия будущего человечества.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slides-nav">
+                <button class="slide-btn" id="prevBtn" disabled>◄ НАЗАД</button>
+                <div class="slide-counter"><span id="currentSlide">1</span> / 15</div>
+                <button class="slide-btn" id="nextBtn">ВПЕРЁД ►</button>
+            </div>
+        </section>
+
+        <!-- Секция викторины -->
+        <section id="quiz">
+            <h2 class="section-title">// ВИКТОРИНА</h2>
+            
+            <div class="quiz-container">
+                <!-- Интро -->
+                <div class="quiz-card active" id="quizIntro">
+                    <div class="quiz-intro">
+                        <h2>Проверь свои знания!</h2>
+                        <p>10 вопросов по теме «Водород»<br>Посмотрим, насколько ты внимателен...</p>
+                        <div style="background: rgba(255,10,60,0.15); border: 1px solid var(--neon-red); padding: 1rem; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--neon-red);">
+                            ⚠️ ВНИМАНИЕ: При запуске теста презентация будет заблокирована. Читерство невозможно!
+                        </div>
+                        <button class="start-btn" onclick="startQuiz()">НАЧАТЬ ТЕСТ</button>
+                    </div>
+                </div>
+
+                <!-- Вопросы (генерируются JS) -->
+                <div class="quiz-card" id="quizQuestion">
+                    <div class="question-header">
+                        <div class="question-number" id="qNumber">ВОПРОС 1 / 10</div>
+                        <div class="score-display">ОЧКИ: <span id="scoreDisplay">0</span></div>
+                    </div>
+                    <div class="question-text" id="qText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <button class="next-btn" id="nextQuestion" onclick="nextQuestion()">ДАЛЕЕ →</button>
+                </div>
+
+                <!-- Результаты -->
+                <div class="quiz-card" id="quizResults">
+                    <div class="results">
+                        <h2>РЕЗУЛЬТАТ</h2>
+                        <div class="final-score" id="finalScore">0/10</div>
+                        <div class="score-label">правильных ответов</div>
+                        <div class="result-message" id="resultMessage"></div>
+                        <button class="restart-btn" onclick="restartQuiz()">ПРОЙТИ ЗАНОВО</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Интерактивная презентация по химии | 8 класс</p>
+        <div class="made-with">// СДЕЛАНО С ❤️ И НЕМНОГО H₂</div>
+    </footer>
+
+    <script>
+        // ===== ПРЕЗЕНТАЦИЯ =====
+        let currentSlide = 1;
+        const totalSlides = 15;
+
+        function updateSlide() {
+            // Скрыть все слайды
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            // Показать текущий
+            document.querySelector(`[data-slide="${currentSlide}"]`).classList.add('active');
+            // Обновить счётчик
+            document.getElementById('currentSlide').textContent = currentSlide;
+            // Обновить кнопки
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            // Обновить прогресс
+            document.getElementById('progressFill').style.width = `${(currentSlide / totalSlides) * 100}%`;
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        // Клавиатурная навигация
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+            if (e.key === 'ArrowRight' && currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        // ===== ВИКТОРИНА =====
+        const questions = [
+            {
+                q: "Какой атомный номер у водорода?",
+                answers: ["0", "1", "2", "8"],
+                correct: 1,
+                explanation: "Водород — первый элемент таблицы Менделеева с атомным номером 1."
+            },
+            {
+                q: "Из скольких атомов состоит молекула водорода H₂?",
+                answers: ["Одного", "Двух", "Трёх", "Четырёх"],
+                correct: 1,
+                explanation: "Молекула H₂ — двухатомная, два атома водорода связаны ковалентной связью."
+            },
+            {
+                q: "Какой газ образуется при горении водорода?",
+                answers: ["Углекислый газ", "Кислород", "Водяной пар", "Азот"],
+                correct: 2,
+                explanation: "2H₂ + O₂ → 2H₂O. При горении водорода образуется вода!"
+            },
+            {
+                q: "Как называется смесь водорода с воздухом, которая может взорваться?",
+                answers: ["Ядовитый газ", "Гремучий газ", "Благородный газ", "Веселящий газ"],
+                correct: 1,
+                explanation: "Гремучий газ — взрывоопасная смесь водорода (4-75%) с воздухом."
+            },
+            {
+                q: "Какой металл используют для получения водорода в лаборатории?",
+                answers: ["Золото", "Серебро", "Цинк", "Медь"],
+                correct: 2,
+                explanation: "Цинк + серная кислота → сульфат цинка + водород. Zn + H₂SO₄ → ZnSO₄ + H₂↑"
+            },
+            {
+                q: "Водород легче или тяжелее воздуха?",
+                answers: ["Тяжелее в 2 раза", "Легче в 14,5 раз", "Одинаковый вес", "Тяжелее в 14,5 раз"],
+                correct: 1,
+                explanation: "Водород — самый лёгкий газ, он в 14,5 раз легче воздуха!"
+            },
+            {
+                q: "Какой процент массы Вселенной составляет водород?",
+                answers: ["Около 10%", "Около 25%", "Около 50%", "Около 75%"],
+                correct: 3,
+                explanation: "Водород составляет примерно 75% массы всей видимой материи во Вселенной."
+            },
+            {
+                q: "Что происходит внутри Солнца с водородом?",
+                answers: ["Он горит", "Термоядерный синтез", "Химическая реакция", "Радиоактивный распад"],
+                correct: 1,
+                explanation: "В ядре Солнца водород превращается в гелий в процессе термоядерного синтеза."
+            },
+            {
+                q: "Как называется изотоп водорода с одним нейтроном?",
+                answers: ["Протий", "Дейтерий", "Тритий", "Гелий"],
+                correct: 1,
+                explanation: "Дейтерий (D) — изотоп водорода с 1 протоном и 1 нейтроном. Тритий имеет 2 нейтрона."
+            },
+            {
+                q: "Для чего в промышленности используют большую часть водорода?",
+                answers: ["Наполнение шаров", "Синтез аммиака (удобрения)", "Топливо для машин", "Освещение"],
+                correct: 1,
+                explanation: "Основное применение — синтез аммиака (N₂ + 3H₂ → 2NH₃) для производства удобрений."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function startQuiz() {
+            // Включаем блюр презентации
+            document.body.classList.add('quiz-active');
+            
+            document.getElementById('quizIntro').classList.remove('active');
+            document.getElementById('quizQuestion').classList.add('active');
+            currentQuestion = 0;
+            score = 0;
+            showQuestion();
+            
+            // Скроллим к викторине
+            document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            
+            document.getElementById('qNumber').textContent = `ВОПРОС ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('qText').textContent = q.q;
+            
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+            
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer;
+                btn.onclick = () => selectAnswer(index);
+                container.appendChild(btn);
+            });
+            
+            document.getElementById('feedback').classList.remove('show', 'correct', 'wrong');
+            document.getElementById('nextQuestion').classList.remove('show');
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+            
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+            
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.correct) {
+                    btn.classList.add('correct');
+                }
+            });
+            
+            if (index === q.correct) {
+                score++;
+                document.getElementById('scoreDisplay').textContent = score;
+                feedback.textContent = `✓ Верно! ${q.explanation}`;
+                feedback.classList.add('correct');
+            } else {
+                buttons[index].classList.add('wrong');
+                feedback.textContent = `✗ Неверно. ${q.explanation}`;
+                feedback.classList.add('wrong');
+            }
+            
+            feedback.classList.add('show');
+            document.getElementById('nextQuestion').classList.add('show');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            // Снимаем блюр презентации
+            document.body.classList.remove('quiz-active');
+            
+            document.getElementById('quizQuestion').classList.remove('active');
+            document.getElementById('quizResults').classList.add('active');
+            
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+            
+            const messages = [
+                { min: 0, max: 3, text: "Хм... Кажется, презентацию ты листал, не читая 😅 Попробуй ещё раз!" },
+                { min: 4, max: 5, text: "Неплохо, но есть куда расти! Водород ждёт, пока ты его лучше узнаешь 🔬" },
+                { min: 6, max: 7, text: "Хороший результат! Ты явно что-то понял про этот газ 💪" },
+                { min: 8, max: 9, text: "Отлично! Ты почти эксперт по водороду! 🏆" },
+                { min: 10, max: 10, text: "ИДЕАЛЬНО! Ты знаешь водород лучше, чем он сам себя 🎉🔥" }
+            ];
+            
+            const message = messages.find(m => score >= m.min && score <= m.max);
+            document.getElementById('resultMessage').textContent = message.text;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.remove('active');
+            document.getElementById('quizIntro').classList.add('active');
+        }
+
+        // Плавный скролл
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // === СВАЙПЫ ДЛЯ МОБИЛОК ===
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const slidesContainer = document.querySelector('.slides-container');
+
+        slidesContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        slidesContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) { // минимальный свайп 50px
+                if (diff > 0 && currentSlide < totalSlides) {
+                    currentSlide++;
+                    updateSlide();
+                } else if (diff < 0 && currentSlide > 1) {
+                    currentSlide--;
+                    updateSlide();
+                }
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
